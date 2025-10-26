@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+  <div id="app">
+    <div>
+      <slider :images="cats"></slider>
+    </div>
+  </div>
+  <script src="vue-2.7.14.js"></script>
+  <script>
+    Vue.component('slider', {
+      props: {
+        images: {
+          type: Array,
+          required: true,
+        },
+      },
+      methods: {
+        previous() {
+          this.currentImage--
+          if (this.currentImage < 0) {
+            this.currentImage = this.images.length - 1
+          }
+        },
+        next() {
+          this.currentImage++
+          if (this.currentImage >= this.images.length) {
+            this.currentImage = 0
+          }
+        },
+      },
+      data: function () {
+        return {
+          currentImage: 0,
+        }
+      },
+      template: `
+        <div class="w-[400px] h-[200px] border border-black relative">
+          <img :src="images[currentImage]" :alt="currentImage" class="w-full h-full">
+          <button @click="previous" class="absolute top-1/2 h-4 left-0 cursor-pointer">Previous</button>
+          <button @click="next" class="absolute top-1/2 h-4 right-0 cursor-pointer">Next</button>
+          <ul class="flex absolute bottom-0 w-full justify-center" >
+            <li v-for="(image, index) in images" :key="index" @click="currentImage = index" class="cursor-pointer w-1 h-1 rounded-full" :class="[currentImage === index ? 'bg-blue-500' : 'bg-red-500']"></li>
+          </ul>
+        </div>
+      `,
+    })
+    var app = new Vue({
+      el: '#app',
+      data: {
+        cats: [],
+        currentImage: 0,
+      },
+      async mounted() {
+        this.cats = (await fetch('https://xieranmaya.github.io/images/cats/cats.json')
+          .then(res => res.json()))  // 将json数据转换成js对象
+          .map(item => item.fullUrl)  // 将js对象中的fullUrl属性提取出来
+      },
+      methods: {
+
+      }
+    })
+  </script>
+</body>
+
+</html>

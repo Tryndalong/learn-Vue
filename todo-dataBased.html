@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>todo</title>
+</head>
+
+<body>
+  <div id="app">
+
+  </div>
+
+  <script>
+    var container = document.querySelector("#app");
+    var todos = [{ text: "Buy milk", completed: false }, { text: "Buy eggs", completed: false }]
+    var selectedCategory = "all";
+    var editIndex = -1;
+
+    renderTodoHtml(todos);
+
+    container.addEventListener("dblclick", function (e) {
+      if (e.target.matches("li span")) {
+        editIndex = Number(e.target.dataset.index);
+        renderTodoHtml(todos);
+      }
+    });
+    container.addEventListener("click", function (e) {
+      if (e.target.matches("button.delete")) {
+        todos.splice(e.target.dataset.index, 1);
+        renderTodoHtml(todos);
+      }
+      if (e.target.matches("input.toggle-one")) {
+        var index = e.target.dataset.index;
+        todos[index].completed = !todos[index].completed;
+        renderTodoHtml(todos);
+      }
+      if (e.target.matches("input.select-all")) {
+        if (todos.every(todo => todo.completed)) {
+          todos.forEach(todo => {
+            todo.completed = false;
+          });
+        } else {
+          todos.forEach(todo => {
+            todo.completed = true;
+          });
+        }
+        renderTodoHtml(todos);
+      }
+      if (e.target.matches("button.clear-completed")) {
+        todos = todos.filter(todo => !todo.completed);
+        renderTodoHtml(todos);
+      }
+      if (e.target.matches("input[type='radio']")) {
+        selectedCategory = e.target.value;
+        renderTodoHtml(todos);
+      }
+    });
+
+    container.addEventListener("keyup", function (e) {
+      if (e.target.matches("input.todo-input") && e.key === "Enter") {
+        var text = e.target.value.trim();
+        if (text !== "") {
+          todos.push({ text: text, completed: false });
+        }
+        renderTodoHtml(todos);
+        container.querySelector("input.todo-input").focus();
+      }
+    });
+
+    function renderTodoHtml(todos) {
+      container.innerHTML = `
+        <div>
+          <h1>todos</h1>
+          <div>
+            <input type="checkbox" class="select-all" ${todos.every(todo => todo.completed) ? "checked" : ""} />
+            <input type="text" class="todo-input" value="" />
+          </div>
+          <ul>
+            ${todos.filter(todo => {
+        if (selectedCategory === "all") {
+          return true;
+        } else if (selectedCategory === "active") {
+          return !todo.completed;
+        } else if (selectedCategory === "completed") {
+          return todo.completed;
+        }
+      }).map((todo, index) => {
+        if (editIndex === index) {
+          return `
+            <li>
+              <input data-index="${index}" class="toggle-one" type="checkbox" ${todo.completed ? "checked" : ""} />
+              <input value="${todo.text}" />
+              <button data-index="${index}" class="save">delete</button>
+            </li>
+          `
+        } else {
+          return `
+                  <li>
+                    <input data-index="${index}" class="toggle-one" type="checkbox" ${todo.completed ? "checked" : ""} />
+                    <span data-index="${index}">${todo.text}</span>
+                    <button data-index="${index}" class="delete">Delete</button>
+                  </li>
+                `
+        }
+      }).join("")}
+          </ul>
+          <div>
+            <span>${todos.filter(todo => todo.completed === false).length} item${todos.filter(todo => todo.completed === false).length >= 2 ? "s" : ""} left</span>
+            <div class="switch-category">
+              <label><input type="radio" value="all" name="selected" ${selectedCategory === "all" ? "checked" : ""} >All</label>
+              <label><input type="radio" value="active" name="selected" ${selectedCategory === "active" ? "checked" : ""} >Active</label>
+              <label><input type="radio" value="completed" name="selected" ${selectedCategory === "completed" ? "checked" : ""} >Completed</label>
+            </div>
+            ${todos.some(todo => todo.completed) ? "<button class='clear-completed'>clear completed</button>" : ""}
+          </div>
+        </div>
+      `
+    }
+
+  </script>
+</body>
+
+</html>

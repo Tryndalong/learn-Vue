@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    ul.show-active li.completed {
+      display: none;
+    }
+
+    ul.show-completed li.active {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <h1>todos</h1>
+    <div>
+      <input type="checkbox" class="select-all" :checked="isAllCompleted" @click="selectAll">
+      <input type="text" class="todo-input" @keyup.enter="addTodo">
+    </div>
+    <!-- <ul :class="[  'show-all', `show-${selectedCategory}`, {'show-active': selectedCategory === 'active'}  ]"> -->
+    <ul :class="`show-${selectedCategory}`">
+      <li :key="todo.text" v-for="(todo, index) of todos"
+        :class="{ completed: todo.completed, active: !todo.completed }">
+        <input type="checkbox" v-model="todo.completed">
+        <input v-if="editingIndex === index" @blur="editingIndex = -1" @keyup.enter="editEnter($event, todo)"
+          :value="todo.text" type="text">
+        <span v-else @dblclick="editingIndex = index">{{ todo.text }}</span>
+        <button @click="deleteTodo(index)">Delete</button>
+      </li>
+    </ul>
+    <div>
+      <span>{{ leftItems }} items left</span>
+      <div class="switch-category">
+        <label><input type="radio" @click="selectedCategory = 'all'" name="selected"
+            :checked="selectedCategory === 'all'">All</label>
+        <label><input type="radio" @click="selectedCategory = 'active'" name="selected"
+            :checked="selectedCategory === 'active'">Active</label>
+        <label><input type="radio" @click="selectedCategory = 'completed'" name="selected"
+            :checked="selectedCategory === 'completed'">Completed</label>
+      </div>
+    </div>
+    <button v-show="showClearCompleted" @click="clearCompleted">Clear completed</button>
+  </div>
+  <script src="vue-2.7.14.js"></script>
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        todos: [{ text: 'Buy milk', completed: false }, { text: 'Buy eggs', completed: false }],
+        selectedCategory: 'all',
+        editingIndex: -1,
+      },
+      computed: {
+        leftItems() {
+          return this.todos.filter(todo => todo.completed === false).length;
+        },
+        showClearCompleted() {
+          return this.todos.some(todo => todo.completed);
+        },
+        isAllCompleted() {
+          return this.todos.every(todo => todo.completed);
+        },
+      },
+      methods: {
+        editEnter(e, todo) {
+          todo.text = e.target.value.trim();
+          this.editingIndex = -1;
+        },
+        deleteTodo(index) {
+          this.todos.splice(index, 1);
+        },
+        selectAll() {
+          if (this.todos.every(todo => todo.completed)) {
+            this.todos.forEach(todo => {
+              todo.completed = false;
+            });
+          } else {
+            this.todos.forEach(todo => {
+              todo.completed = true;
+            });
+          }
+        },
+        addTodo(e) {
+          var text = e.target.value.trim();
+          if (text !== "") {
+            this.todos.push({ text: text, completed: false });
+          }
+          e.target.value = "";
+        },
+        clearCompleted() {
+          this.todos = this.todos.filter(todo => !todo.completed);
+        },
+      },
+    });
+  </script>
+</body>
+
+</html>

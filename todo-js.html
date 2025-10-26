@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>todo</title>
+  <style>
+    li {
+      span {
+        display: inline;
+      }
+
+      input[type="text"] {
+        display: none;
+      }
+
+      &.editing {
+        span {
+          display: none;
+        }
+
+        input[type="text"] {
+          display: inline;
+        }
+      }
+    }
+
+    ul {
+      &.show-active {
+        li.completed {
+          display: none;
+        }
+      }
+
+      &.show-completed {
+        li.active {
+          display: none;
+        }
+      }
+
+    }
+  </style>
+</head>
+
+<body>
+  <h1>todos</h1>
+  <div>
+    <input type="checkbox" class="select-all">
+    <input type="text" id="todo-input">
+  </div>
+  <ul id="todo-list" class="show-all">
+  </ul>
+  <div>
+    <span class="left-items">1 items left</span>
+    <div class="switch-category">
+      <label><input type="radio" value="all" name="selected" checked>All</label>
+      <label><input type="radio" value="active" name="selected">Active</label>
+      <label><input type="radio" value="completed" name="selected">Completed</label>
+    </div>
+    <button class="clear-completed">Clear completed</button>
+  </div>
+  <script>
+    // var todoInput = document.querySelector("#todo-input");
+    var todoInput = document.getElementById("todo-input");
+    var todoList = document.getElementById("todo-list");
+    var leftItems = document.querySelector(".left-items");
+    var clearCompleted = document.querySelector(".clear-completed");
+    var selectAll = document.querySelector(".select-all");
+    var switchCategory = document.querySelector(".switch-category");
+
+    switchCategory.addEventListener("click", function (e) {
+      if (e.target.matches("input[type='radio']")) {
+        todoList.className = 'show-' + e.target.value;
+      }
+    });
+    selectAll.addEventListener("click", function (e) {
+
+    });
+
+    todoInput.addEventListener("keyup", function (e) {
+      if (e.key === "Enter") {
+        var todoText = todoInput.value.trim();
+        if (todoText !== "") {
+          var li = document.createElement("li");
+          li.classList.add("active"); // 添加这行
+          li.innerHTML = `
+            <input type="checkbox" class="todo-checkbox"/>
+            <span>${todoText}</span>
+            <input class="edit-box" type="text" value="${todoText}" />
+            <button>Delete</button>
+          `;
+          li.addEventListener("click", function (e) {
+            if (e.target.matches('button')) {
+              todoList.removeChild(li);
+              updateLeftItems();
+            }
+            if (e.target.matches(".todo-checkbox")) {
+              if (e.target.checked) {
+                li.classList.add("completed");
+                li.classList.remove("active");
+              } else {
+                li.classList.remove("completed");
+                li.classList.add("active");
+              }
+              updateLeftItems();
+            }
+          });
+          li.addEventListener("dblclick", function (e) {
+            if (e.target.nodeName == "SPAN") {
+              li.classList.add("editing");
+              li.querySelector(".edit-box").select();
+            };
+          });
+          li.addEventListener("keyup", function (e) {
+            if (e.target.matches(".edit-box") && e.key === "Enter") {
+              li.querySelector("span").textContent = e.target.value;
+              li.classList.remove("editing");
+            }
+          });
+          li.addEventListener("focusout", function (e) {
+            if (e.target.matches(".edit-box")) {
+              li.classList.remove("editing");
+            }
+          });
+          todoList.appendChild(li);
+          e.target.value = "";
+        }
+      };
+    });
+
+    function updateLeftItems() {
+      leftItems.textContent = `${todoList.querySelectorAll('input[type="checkbox"]:not(:checked)').length} item(s) left`;
+      clearCompleted.style.display = todoList.querySelectorAll('input:checked').length === 0 ? 'none' : 'block';
+      selectAll.checked = todoList.querySelectorAll('input:checked').length === todoList.children.length;
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+  <div id="app">
+    <fancy-button>
+      Click me!
+    </fancy-button>
+  </div>
+  <script src="./vue-2.7.14.js"></script>
+  <script>
+    Vue.component('FancyButton', {
+      template: `
+        <button class="bg-blue-500 text-white p-2 rounded">
+          <slot />
+        </button>
+      `,
+    })
+
+    var app = new Vue({
+      el: '#app',
+      data: {
+        cats: [],
+        currentImage: 0,
+      },
+      async mounted() {
+        this.cats = (await fetch('https://xieranmaya.github.io/images/cats/cats.json')
+          .then(res => res.json()))  // 将json数据转换成js对象
+          .map(item => item.fullUrl)  // 将js对象中的fullUrl属性提取出来
+      },
+      methods: {
+
+      }
+    })
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>switch</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+  <div id="app">
+    <my-switch v-model="value"></my-switch>
+    <span>{{ value }}</span>
+  </div>
+  <script src="./vue-2.7.14.js"></script>
+  <script>
+    Vue.component('my-switch', {
+      props: {
+        value: {
+          type: Boolean,
+        },
+      },
+      template: `
+        <span @click="$emit('input', !checked)" class="relative inline-block w-4 h-2 bg-gray-400 rounded-full">
+          <span :class="{'left-2': checked}" class="absolute inline-block w-2 h-2 bg-white rounded-full"></span>
+        </span>
+      `,
+      data: function () {
+        return {
+          checked: this.value,
+        }
+      },
+      watch: {
+        value: function () {
+          this.checked = this.value;
+        },
+      },
+    })
+    var app = new Vue({
+      el: '#app',
+      data: {
+        value: false,
+      },
+    })
+  </script>
+</body>
+
+</html>
